@@ -41,6 +41,7 @@ const Tasks = () => {
   const [contextMenu, setContextMenu] = useState<{ x: number; y: number; taskId: string } | null>(null);
   const [draggedTaskId, setDraggedTaskId] = useState<string | null>(null);
   const [dragOverTaskId, setDragOverTaskId] = useState<string | null>(null);
+  const [newTaskDescription, setNewTaskDescription] = useState('');
 
   // Calculate task statistics
   const totalTasks = tasks.length;
@@ -91,7 +92,7 @@ const Tasks = () => {
         dueDate: selectedDate ? selectedDate.toLocaleDateString() : new Date(currentDate.getTime() + 7 * 24 * 60 * 60 * 1000).toLocaleDateString(),
         time: currentDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
         priority: selectedPriority,
-        description: '',
+        description: newTaskDescription.trim(),
         reminder: selectedReminder,
         labels: selectedLabels
       };
@@ -99,6 +100,7 @@ const Tasks = () => {
       setTasks(updatedTasks);
       localStorage.setItem('kario-tasks', JSON.stringify(updatedTasks));
       setNewTaskTitle('');
+      setNewTaskDescription('');
       setSelectedDate(undefined);
       setSelectedTime('');
       setSelectedPriority('Priority 3');
@@ -122,6 +124,7 @@ const Tasks = () => {
     } else if (e.key === 'Escape') {
       setIsAddingTask(false);
       setNewTaskTitle('');
+      setNewTaskDescription('');
     }
   };
 
@@ -382,6 +385,8 @@ const Tasks = () => {
                     {/* Section 2: Description */}
                     <div className="mb-2">
                       <textarea
+                        value={newTaskDescription}
+                        onChange={(e) => setNewTaskDescription(e.target.value)}
                         placeholder="Description"
                         className="w-full bg-transparent border-none text-white placeholder-gray-400 focus:ring-0 p-0 resize-none min-h-[40px] outline-none text-sm"
                       />
@@ -425,6 +430,7 @@ const Tasks = () => {
                           onClick={() => {
                             setIsAddingTask(false);
                             setNewTaskTitle('');
+                            setNewTaskDescription('');
                           }}
                           variant="ghost"
                           size="sm"
