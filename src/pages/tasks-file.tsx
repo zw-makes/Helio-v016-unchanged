@@ -4,11 +4,10 @@ import DateSelector from '@/components/tasks/DateSelector';
 import PrioritySelector from '@/components/tasks/PrioritySelector';
 import ReminderSelector from '@/components/tasks/ReminderSelector';
 import LabelSelector from '@/components/tasks/LabelSelector';
-import { Plus, CircleCheck as CheckCircle, ChevronRight, MoveVertical as MoreVertical, FileText, AlignLeft, Calendar, Flag, Bell, Tag, Link, Edit, Trash2 } from 'lucide-react';
+import { Plus, ChevronRight, MoveVertical as MoreVertical, Calendar, Flag, Bell, Tag, Link, Edit, Trash2 } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 
 interface Task {
   id: string;
@@ -295,132 +294,100 @@ const Tasks = () => {
             {/* Expandable content - positioned below the main section */}
             {isSectionExpanded && (
               <div className="bg-transparent max-w-[980px]" style={{ marginBottom: '45px' }}>
-                {/* Table for tasks */}
-                <div className="bg-transparent rounded-lg overflow-hidden">
-                  <Table>
-                    <TableHeader>
-                      <TableRow className="border-b border-[#414141] hover:bg-transparent bg-transparent">
-                        <TableHead className="text-gray-400 font-medium">
-                          <div className="flex items-center gap-2">
-                            <FileText className="h-4 w-4" />
-                            Task Name
-                          </div>
-                        </TableHead>
-                        <TableHead className="text-gray-400 font-medium">
-                          <div className="flex items-center gap-2">
-                            <AlignLeft className="h-4 w-4" />
-                            Description
-                          </div>
-                        </TableHead>
-                        <TableHead className="text-gray-400 font-medium">
-                          <div className="flex items-center gap-2">
-                            <Calendar className="h-4 w-4" />
-                            Creation Date
-                          </div>
-                        </TableHead>
-                        <TableHead className="text-gray-400 font-medium">
-                          <div className="flex items-center gap-2">
-                            <Flag className="h-4 w-4" />
-                            Priority
-                          </div>
-                        </TableHead>
-                        <TableHead className="text-gray-400 font-medium w-24">
-                          <div className="flex items-center gap-2">
-                            <CheckCircle className="h-4 w-4" />
-                            Progress
-                          </div>
-                        </TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {tasks.map((task) => (
-                        <TableRow
-                          key={task.id}
-                          className={`border-b border-[#414141] hover:bg-[#313133] bg-transparent transition-all ${
-                            draggedTaskId === task.id ? 'opacity-50 cursor-grabbing' : 'cursor-grab hover:cursor-grab'
-                          } ${
-                            dragOverTaskId === task.id ? 'border-t-2 border-t-blue-500' : ''
+                {/* Card-based task list */}
+                <div className="space-y-3">
+                  {tasks.map((task) => (
+                    <div
+                      key={task.id}
+                      className={`border border-[#414141] rounded-[12px] p-4 bg-transparent hover:bg-[#1f1f1f] transition-all ${
+                        draggedTaskId === task.id ? 'opacity-50' : ''
+                      } ${
+                        dragOverTaskId === task.id ? 'border-blue-500' : ''
+                      }`}
+                      onClick={() => handleToggleTask(task.id)}
+                      onContextMenu={(e) => handleContextMenu(e, task.id)}
+                      draggable
+                      onDragStart={(e) => handleDragStart(e, task.id)}
+                      onDragOver={(e) => handleDragOver(e, task.id)}
+                      onDragLeave={handleDragLeave}
+                      onDrop={(e) => handleDrop(e, task.id)}
+                      onDragEnd={handleDragEnd}
+                      style={{ cursor: draggedTaskId === task.id ? 'grabbing' : 'grab' }}
+                    >
+                      {/* Title with checkbox */}
+                      <div className="flex items-center gap-2 mb-2">
+                        <div
+                          className={`w-4 h-4 border-2 rounded-full cursor-pointer transition-colors flex-shrink-0 ${
+                            task.completed
+                              ? 'bg-white border-white'
+                              : 'border-gray-400 hover:border-gray-300'
                           }`}
-                          onClick={() => handleToggleTask(task.id)}
-                          onContextMenu={(e) => handleContextMenu(e, task.id)}
-                          draggable
-                          onDragStart={(e) => handleDragStart(e, task.id)}
-                          onDragOver={(e) => handleDragOver(e, task.id)}
-                          onDragLeave={handleDragLeave}
-                          onDrop={(e) => handleDrop(e, task.id)}
-                          onDragEnd={handleDragEnd}
-                        >
-                          <TableCell className={`${
-                            task.completed ? 'text-gray-400 line-through' : 'text-white'
-                          }`}>
-                            <div className="flex items-center gap-3">
-                              <div
-                                className={`w-4 h-4 border-2 rounded-full cursor-pointer transition-colors ${
-                                  task.completed
-                                    ? 'bg-white border-white'
-                                    : 'border-gray-400 hover:border-gray-300'
-                                }`}
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  handleToggleTask(task.id);
-                                }}
-                              >
-                              </div>
-                              <TooltipProvider delayDuration={100}>
-                                <Tooltip>
-                                  <TooltipTrigger asChild>
-                                    <span className="truncate max-w-[150px]">{task.title}</span>
-                                  </TooltipTrigger>
-                                  <TooltipContent side="right" className="bg-[#1f1f1f] text-white rounded-xl border-0">
-                                    <p className="max-w-sm">{task.title}</p>
-                                  </TooltipContent>
-                                </Tooltip>
-                              </TooltipProvider>
-                            </div>
-                          </TableCell>
-                          <TableCell className="text-gray-300">
-                            {task.description ? (
-                              <TooltipProvider delayDuration={100}>
-                                <Tooltip>
-                                  <TooltipTrigger asChild>
-                                    <span className="truncate max-w-[150px] block cursor-help">{task.description}</span>
-                                  </TooltipTrigger>
-                                  <TooltipContent side="right" className="bg-[#1f1f1f] text-white rounded-xl border-0">
-                                    <p className="max-w-sm">{task.description}</p>
-                                  </TooltipContent>
-                                </Tooltip>
-                              </TooltipProvider>
-                            ) : (
-                              <span className="text-gray-500 italic">No description</span>
-                            )}
-                          </TableCell>
-                          <TableCell className="text-white">{task.creationDate}</TableCell>
-                          <TableCell>
-                            {(() => {
-                              const style = getPriorityStyle(task.priority);
-                              return (
-                                <span className={`px-3 py-1.5 rounded-full text-xs font-medium flex items-center gap-1.5 w-fit ${style.bg} ${style.text}`}>
-                                  <Flag className={`h-3 w-3 ${style.text}`} />
-                                  {task.priority}
-                                </span>
-                              );
-                            })()}
-                          </TableCell>
-                          <TableCell>
-                            <div className="flex items-center justify-center">
-                              <div className="w-8 h-8 rounded-full border-2 border-gray-600 flex items-center justify-center">
-                                <CheckCircle 
-                                  className={`h-4 w-4 transition-colors ${
-                                    task.completed ? 'text-green-400' : 'text-gray-500'
-                                  }`}
-                                />
-                              </div>
-                            </div>
-                          </TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleToggleTask(task.id);
+                          }}
+                        />
+                        <TooltipProvider delayDuration={100}>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <h3 className={`text-base font-semibold flex-1 ${
+                                task.completed ? 'text-gray-400 line-through' : 'text-white'
+                              }`}>
+                                {task.title}
+                              </h3>
+                            </TooltipTrigger>
+                            <TooltipContent side="right" className="bg-[#1f1f1f] text-white rounded-xl border-0">
+                              <p className="max-w-sm">{task.title}</p>
+                            </TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
+                      </div>
+
+                      {/* Description */}
+                      {task.description && (
+                        <div className="mb-3 ml-6">
+                          <TooltipProvider delayDuration={100}>
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <p className="text-sm text-gray-300 cursor-help line-clamp-2">
+                                  {task.description}
+                                </p>
+                              </TooltipTrigger>
+                              <TooltipContent side="right" className="bg-[#1f1f1f] text-white rounded-xl border-0">
+                                <p className="max-w-sm">{task.description}</p>
+                              </TooltipContent>
+                            </Tooltip>
+                          </TooltipProvider>
+                        </div>
+                      )}
+
+                      {/* Bottom row: Date/Time tag, Priority, Reminder */}
+                      <div className="ml-6 flex items-center gap-2 flex-wrap">
+                        {/* Date and Time Tag */}
+                        <div className="flex items-center gap-2 px-3 py-1.5 bg-[#252527] border border-[#414141] rounded-full text-xs text-gray-300">
+                          <Calendar className="h-3 w-3" />
+                          <span>{task.creationDate} {task.time}</span>
+                        </div>
+
+                        {/* Priority Badge */}
+                        {(() => {
+                          const style = getPriorityStyle(task.priority);
+                          return (
+                            <span className={`px-3 py-1.5 rounded-full text-xs font-medium flex items-center gap-1.5 ${style.bg} ${style.text}`}>
+                              <Flag className={`h-3 w-3 ${style.text}`} />
+                            </span>
+                          );
+                        })()}
+
+                        {/* Reminder Indicator */}
+                        {task.reminder && (
+                          <div className="flex items-center gap-1 px-2 py-1.5 bg-[#252527] border border-[#414141] rounded-full">
+                            <Bell className="h-3 w-3 text-gray-400" />
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  ))}
                 </div>
               
                 {/* Add New Task Input */}
