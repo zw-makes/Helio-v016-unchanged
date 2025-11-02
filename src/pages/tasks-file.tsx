@@ -46,6 +46,8 @@ const Tasks = () => {
   const [editDescription, setEditDescription] = useState('');
   const [editPriority, setEditPriority] = useState('');
   const [editDate, setEditDate] = useState<Date | undefined>();
+  const [labelsPopupTaskId, setLabelsPopupTaskId] = useState<string | null>(null);
+  const [labelsPopupPosition, setLabelsPopupPosition] = useState<{ x: number; y: number } | null>(null);
 
   // Calculate task statistics
   const totalTasks = tasks.length;
@@ -220,7 +222,11 @@ const Tasks = () => {
   };
 
   React.useEffect(() => {
-    const handleClick = () => setContextMenu(null);
+    const handleClick = () => {
+      setContextMenu(null);
+      setLabelsPopupTaskId(null);
+      setLabelsPopupPosition(null);
+    };
     document.addEventListener('click', handleClick);
     return () => document.removeEventListener('click', handleClick);
   }, []);
@@ -418,14 +424,38 @@ const Tasks = () => {
 
                         {/* Labels - Consolidated into single button */}
                         {task.labels && task.labels.length > 0 && (
-                          <div className="flex items-center gap-1.5 px-3 py-1.5 bg-[#252527] border border-[#414141] rounded-full">
-                            {task.labels.map((label, index) => (
-                              <Tag
-                                key={index}
-                                className={`h-4 w-4 ${getLabelColor(label)} transition-all duration-200`}
-                              />
-                            ))}
-                          </div>
+                          <TooltipProvider delayDuration={200}>
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <button
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    const rect = e.currentTarget.getBoundingClientRect();
+                                    setLabelsPopupTaskId(task.id);
+                                    setLabelsPopupPosition({ x: rect.left, y: rect.bottom + 8 });
+                                  }}
+                                  className="flex items-center gap-1.5 px-3 py-1.5 bg-[#252527] border border-[#414141] rounded-full hover:border-[#525252] transition-all duration-200 cursor-pointer"
+                                >
+                                  {task.labels.map((label, index) => (
+                                    <Tag
+                                      key={index}
+                                      className={`h-4 w-4 ${getLabelColor(label)} transition-all duration-200`}
+                                    />
+                                  ))}
+                                </button>
+                              </TooltipTrigger>
+                              <TooltipContent side="bottom" align="start" className="bg-[#1f1f1f] text-white rounded-xl border border-[#414141] z-50 p-2">
+                                <div className="flex flex-col gap-2">
+                                  {task.labels.map((label, index) => (
+                                    <div key={index} className="flex items-center gap-2">
+                                      <Tag className={`h-3 w-3 ${getLabelColor(label)}`} />
+                                      <span className="text-xs">{label}</span>
+                                    </div>
+                                  ))}
+                                </div>
+                              </TooltipContent>
+                            </Tooltip>
+                          </TooltipProvider>
                         )}
                       </div>
                     </div>
@@ -656,6 +686,30 @@ const Tasks = () => {
           </div>
         </div>
       )}
+
+      {/* Labels Popup Modal */}
+      {labelsPopupTaskId && labelsPopupPosition && (() => {
+        const task = tasks.find(t => t.id === labelsPopupTaskId);
+        return task?.labels && task.labels.length > 0 ? (
+          <div
+            className="fixed bg-[#1f1f1f] border border-[#414141] rounded-[16px] p-4 z-50 shadow-xl"
+            style={{
+              left: `${labelsPopupPosition.x}px`,
+              top: `${labelsPopupPosition.y}px`,
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex flex-col gap-3">
+              {task.labels.map((label, index) => (
+                <div key={index} className="flex items-center gap-3 px-3 py-2 bg-[#252527] border border-[#414141] rounded-[10px]">
+                  <Tag className={`h-5 w-5 ${getLabelColor(label)}`} />
+                  <span className="text-sm text-white">{label}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        ) : null;
+      })()}
     </div>
   );
 };
