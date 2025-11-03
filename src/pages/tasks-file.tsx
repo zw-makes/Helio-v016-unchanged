@@ -4,7 +4,7 @@ import DateSelector from '@/components/tasks/DateSelector';
 import PrioritySelector from '@/components/tasks/PrioritySelector';
 import ReminderSelector from '@/components/tasks/ReminderSelector';
 import LabelSelector from '@/components/tasks/LabelSelector';
-import { Plus, ChevronRight, MoveVertical as MoreVertical, Calendar, Flag, Bell, Tag, Link, Edit, Trash2 } from 'lucide-react';
+import { Plus, ChevronRight, MoveVertical as MoreVertical, Calendar, Flag, Bell, Tag, Link, Edit, Trash2, Repeat } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -20,6 +20,7 @@ interface Task {
   description: string;
   reminder?: string;
   labels?: string[];
+  repeat?: string;
 }
 
 const Tasks = () => {
@@ -47,6 +48,7 @@ const Tasks = () => {
   const [editPriority, setEditPriority] = useState('');
   const [editDate, setEditDate] = useState<Date | undefined>();
   const [expandedLabelsTaskId, setExpandedLabelsTaskId] = useState<string | null>(null);
+  const [selectedRepeat, setSelectedRepeat] = useState<string>('');
 
   // Calculate task statistics
   const totalTasks = tasks.length;
@@ -123,7 +125,8 @@ const Tasks = () => {
         priority: selectedPriority,
         description: newTaskDescription.trim(),
         reminder: selectedReminder,
-        labels: selectedLabels
+        labels: selectedLabels,
+        repeat: selectedRepeat || undefined
       };
       const updatedTasks = [...tasks, newTask];
       setTasks(updatedTasks);
@@ -135,6 +138,7 @@ const Tasks = () => {
       setSelectedPriority('Priority 3');
       setSelectedReminder(undefined);
       setSelectedLabels([]);
+      setSelectedRepeat('');
       setIsAddingTask(false);
     }
   };
@@ -448,6 +452,23 @@ const Tasks = () => {
                           </TooltipProvider>
                         )}
 
+                        {/* Repeat Indicator */}
+                        {task.repeat && (
+                          <TooltipProvider delayDuration={100}>
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <div className="flex items-center gap-1.5 px-3 py-1.5 bg-[#252527] border border-[#414141] rounded-full cursor-help">
+                                  <Repeat className="h-3 w-3 text-gray-400" />
+                                  <span className="text-xs text-gray-300">Repeats</span>
+                                </div>
+                              </TooltipTrigger>
+                              <TooltipContent side="bottom" align="start" className="bg-[#1f1f1f] text-white rounded-xl border-0 z-50">
+                                <p className="text-xs">Repeats: {task.repeat.replace(/-/g, ' ')}</p>
+                              </TooltipContent>
+                            </Tooltip>
+                          </TooltipProvider>
+                        )}
+
                         {/* Labels - Consolidated into single button with tooltip and expandable view */}
                         {task.labels && task.labels.length > 0 && (
                           <div className="relative">
@@ -538,6 +559,8 @@ const Tasks = () => {
                           selectedDate={selectedDate}
                           onSelect={setSelectedDate}
                           onTimeSelect={setSelectedTime}
+                          selectedRepeat={selectedRepeat}
+                          onRepeatSelect={setSelectedRepeat}
                         />
                         <PrioritySelector
                           selectedPriority={selectedPriority}

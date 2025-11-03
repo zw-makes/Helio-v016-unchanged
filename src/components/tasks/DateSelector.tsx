@@ -10,9 +10,11 @@ interface DateSelectorProps {
   selectedDate?: Date;
   onSelect: (date: Date | undefined) => void;
   onTimeSelect?: (time: string) => void;
+  selectedRepeat?: string;
+  onRepeatSelect?: (repeat: string) => void;
 }
 
-const DateSelector: React.FC<DateSelectorProps> = ({ selectedDate, onSelect, onTimeSelect }) => {
+const DateSelector: React.FC<DateSelectorProps> = ({ selectedDate, onSelect, onTimeSelect, selectedRepeat = '', onRepeatSelect }) => {
   const [open, setOpen] = useState(false);
   const [inputValue, setInputValue] = useState(
     selectedDate ? format(selectedDate, "MMM dd, yyyy") : ""
@@ -564,6 +566,9 @@ const DateSelector: React.FC<DateSelectorProps> = ({ selectedDate, onSelect, onT
                           setRepeatOption(parsedRepeat);
                           setRepeatClicked(true);
                           setShowDateConfirmation(true);
+                          if (onRepeatSelect) {
+                            onRepeatSelect(parsedRepeat);
+                          }
                         }}
                         size="sm"
                         className="w-full bg-[#252525] text-white hover:bg-[#2e2e2e] border border-[#414141] rounded-[10px] h-9 text-sm"
@@ -598,6 +603,9 @@ const DateSelector: React.FC<DateSelectorProps> = ({ selectedDate, onSelect, onT
                             setRepeatOption(option.value);
                             setRepeatClicked(true);
                             setShowDateConfirmation(true);
+                            if (onRepeatSelect) {
+                              onRepeatSelect(option.value);
+                            }
                           }}
                           className={cn(
                             "h-9 text-xs border border-[#414141] rounded-[12px] transition-all duration-200",
@@ -627,6 +635,9 @@ const DateSelector: React.FC<DateSelectorProps> = ({ selectedDate, onSelect, onT
                           setRepeatEndDate(undefined);
                           setRepeatInputValue("");
                           setParsedRepeat(null);
+                          if (onRepeatSelect) {
+                            onRepeatSelect("");
+                          }
                         }}
                         className="h-7 text-xs text-red-400 hover:text-red-300 hover:bg-red-400/10"
                       >
