@@ -450,7 +450,7 @@ const Tasks = () => {
 
                         {/* Labels - Consolidated into single button with tooltip and expandable view */}
                         {task.labels && task.labels.length > 0 && (
-                          <div className="flex flex-col gap-1.5 w-full">
+                          <div className="relative">
                             <TooltipProvider delayDuration={200}>
                               <Tooltip>
                                 <TooltipTrigger asChild>
@@ -482,15 +482,17 @@ const Tasks = () => {
                               </Tooltip>
                             </TooltipProvider>
 
-                            {/* Expanded labels view */}
+                            {/* Expanded labels view in popup bubble */}
                             {expandedLabelsTaskId === task.id && (
-                              <div className="flex flex-col gap-1.5 pl-6">
-                                {task.labels.map((label, index) => (
-                                  <div key={index} className="flex items-center gap-2 px-3 py-1.5 bg-[#252527] border border-[#414141] rounded-full w-fit">
-                                    <Tag className={`h-4 w-4 ${getLabelColor(label)}`} />
-                                    <span className="text-xs text-white">{label}</span>
-                                  </div>
-                                ))}
+                              <div className="absolute top-full mt-1 left-0 bg-[#1f1f1f] border border-[#414141] rounded-[12px] p-3 z-50 shadow-xl whitespace-nowrap">
+                                <div className="flex flex-col gap-2">
+                                  {task.labels.map((label, index) => (
+                                    <div key={index} className="flex items-center gap-2">
+                                      <Tag className={`h-4 w-4 ${getLabelColor(label)}`} />
+                                      <span className="text-xs text-white">{label}</span>
+                                    </div>
+                                  ))}
+                                </div>
                               </div>
                             )}
                           </div>
