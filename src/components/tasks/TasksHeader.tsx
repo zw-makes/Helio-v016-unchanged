@@ -124,28 +124,15 @@ const TasksHeader = ({
                         ].map((sortOption) => (
                           <div key={sortOption.key} className="flex items-center justify-between">
                             <span className="text-gray-300 text-sm">{sortOption.label}</span>
-                            <div className="flex items-center">
-                              <input
-                                type="radio"
-                                name="sort-option"
-                                value={sortOption.key}
-                                checked={sortSettings[sortOption.key as keyof typeof sortSettings]}
-                                onChange={(e) => {
-                                  if (e.target.checked) {
-                                    const newSettings = {
-                                      completionStatus: false,
-                                      creationDate: false,
-                                      pages: false,
-                                      chats: false,
-                                      [sortOption.key]: true
-                                    };
-                                    setSortSettings?.(newSettings);
-                                    localStorage.setItem('kario-sort-settings', JSON.stringify(newSettings));
-                                  }
-                                }}
-                                className="w-4 h-4 cursor-pointer accent-blue-500"
-                              />
-                            </div>
+                            <IconToggle
+                              icon={sortOption.icon}
+                              checked={sortSettings[sortOption.key as keyof typeof sortSettings]}
+                              onCheckedChange={(checked) => {
+                                const newSettings = { ...sortSettings, [sortOption.key]: checked };
+                                setSortSettings?.(newSettings);
+                                localStorage.setItem('kario-sort-settings', JSON.stringify(newSettings));
+                              }}
+                            />
                           </div>
                         ))}
                       </CollapsibleContent>
@@ -175,38 +162,17 @@ const TasksHeader = ({
                           { key: 'priority', label: 'Priority', icon: AlertCircle },
                           { key: 'label', label: 'Label', icon: Tag }
                         ].map((filterOption) => (
-                          <div key={filterOption.key} className="space-y-2">
-                            <div className="flex items-center justify-between">
-                              <span className="text-gray-300 text-sm">{filterOption.label}</span>
-                              <input
-                                type="checkbox"
-                                checked={filterSettings[filterOption.key as keyof typeof filterSettings]}
-                                onChange={(e) => {
-                                  const newSettings = { ...filterSettings, [filterOption.key]: e.target.checked };
-                                  setFilterSettings?.(newSettings);
-                                  localStorage.setItem('kario-filter-settings', JSON.stringify(newSettings));
-                                  if (!e.target.checked) {
-                                    const newValues = { ...filterValues, [filterOption.key]: '' };
-                                    setFilterValues?.(newValues);
-                                    localStorage.setItem('kario-filter-values', JSON.stringify(newValues));
-                                  }
-                                }}
-                                className="w-4 h-4 cursor-pointer accent-blue-500"
-                              />
-                            </div>
-                            {filterSettings[filterOption.key as keyof typeof filterSettings] && (
-                              <input
-                                type="text"
-                                placeholder={`Select ${filterOption.label.toLowerCase()}`}
-                                value={filterValues[filterOption.key as keyof typeof filterValues] || ''}
-                                onChange={(e) => {
-                                  const newValues = { ...filterValues, [filterOption.key]: e.target.value };
-                                  setFilterValues?.(newValues);
-                                  localStorage.setItem('kario-filter-values', JSON.stringify(newValues));
-                                }}
-                                className="w-full bg-[#252525] border border-[#414141] text-white placeholder-gray-500 px-2 py-1 rounded text-xs outline-none focus:border-[#555555]"
-                              />
-                            )}
+                          <div key={filterOption.key} className="flex items-center justify-between">
+                            <span className="text-gray-300 text-sm">{filterOption.label}</span>
+                            <IconToggle
+                              icon={filterOption.icon}
+                              checked={filterSettings[filterOption.key as keyof typeof filterSettings]}
+                              onCheckedChange={(checked) => {
+                                const newSettings = { ...filterSettings, [filterOption.key]: checked };
+                                setFilterSettings?.(newSettings);
+                                localStorage.setItem('kario-filter-settings', JSON.stringify(newSettings));
+                              }}
+                            />
                           </div>
                         ))}
                       </CollapsibleContent>
